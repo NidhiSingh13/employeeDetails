@@ -2,25 +2,28 @@ package EmployeeApp.EmployeeAppInfo.EmployeeEntity;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
-@ApiModel(description="  Employee Details")
+
 @Entity
 @Table(name="employeetable")
 public class employeeEntityClass {
-	@ApiModelProperty(notes="employee name")
+	
 	@Column(name="employeename")
 	private String employeeName;
 	
-	@ApiModelProperty(notes="employee id")
+	
 	@Id
+	@GeneratedValue(strategy=GenerationType.AUTO)
 	@Column(name="employeeid")
 	private int employeeId;
-	@ApiModelProperty(notes="employee city")
+	
 	@Column(name="employeecity")
 	private String employeeCity;
 

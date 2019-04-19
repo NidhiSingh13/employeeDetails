@@ -19,7 +19,7 @@ import net.sf.json.JSONObject;
 
 @RestController
 @RequestMapping("/employeeApi")
-@Api(description="set to perform crud operation")
+
 public class EmployeeController {
 
 	@Autowired
@@ -33,13 +33,19 @@ public class EmployeeController {
 		
 	}
 	@RequestMapping(value="/getEmployeeById/{query}", method=RequestMethod.GET)
-	public employeeEntityClass getEmployeeByID(@PathVariable String query) {
+	public ResponseEntity<Object> getEmployeeByID(@PathVariable String query) {
 		System.out.println(query);
 		int id = Integer.parseInt(query);
 		employeeEntityClass e =EmployeeInterface.findByemployeeId(id);
 		System.out.println(e.toString());
+		if(e!=null) {
+			return ResponseEntity.status(HttpStatus.OK).body(e);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid request");
+		}
+	
 		
-		return e;
 	}
 	
 	@PostMapping(path="/postEmployeeByName", produces="application/json",consumes = "application/json")
@@ -49,47 +55,56 @@ public class EmployeeController {
 		employeeEntityClass eobj= EmployeeInterface.save(e);
 		System.out.println(eobj);
 		if(eobj==null) {
-			return null;
+			return new ResponseEntity(HttpStatus.BAD_REQUEST);
 		}
 		return new ResponseEntity<employeeEntityClass>(eobj,HttpStatus.OK);
 	}
 	
 	@RequestMapping(value="/findbyName/{query}", method =RequestMethod.GET)
-	public List<employeeEntityClass> findByemployeeName(@PathVariable String query ) {
+	public ResponseEntity<Object>findByemployeeName(@PathVariable String query ) {
 		System.out.println(query);
-		List<employeeEntityClass> eobj = EmployeeInterface.findByemployeeName(query);
+		employeeEntityClass eobj = EmployeeInterface.findByemployeeName(query);
 		System.out.println(eobj);
-		
-		
-		return eobj;
+		if(eobj!=null) {
+		return ResponseEntity.status(HttpStatus.OK).body(eobj);}
+		else {
+			return ResponseEntity.status(HttpStatus.NO_CONTENT).body("no fullfillment_id is there");
+		}
+	
 	}
 	
 	@RequestMapping(value="/updateEmployee/{query}",method =RequestMethod.PATCH)
-	public employeeEntityClass  UpdateEmployeeDetails(@PathVariable String query,@RequestBody JSONObject e) throws Exception {
+	public ResponseEntity<Object>  UpdateEmployeeDetails(@PathVariable String query,@RequestBody employeeEntityClass e) throws Exception {
 	
 		int id = Integer.parseInt(query);
 		System.out.println(e);
 		employeeEntityClass eobj = EmployeeInterface.findByemployeeId(id);
 		
-		System.out.println(e.getInt("employeeId"));
-		if(id == e.getInt("employeeId")) {
-		eobj.setEmployeeCity(e.getString("employeeCity"));
-		eobj.setEmployeeName(e.getString("employeeName"));
-		eobj =EmployeeInterface.save(eobj);
+		System.out.println(e.getEmployeeId());
+		if(id == e.getEmployeeId()) {
+			eobj.setEmployeeCity(e.getEmployeeCity());
+			eobj.setEmployeeName(e.getEmployeeName());
+			eobj =EmployeeInterface.save(eobj);
+			return ResponseEntity.status(HttpStatus.OK).body(eobj);
 		}
 		else {
-			throw new Exception("Url Id and Id in body of json doesnot match");
+			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).build();
 		}
-		return eobj;
+		
 	}
 	
 	@RequestMapping(value="/deleteEmployee/{query}",method=RequestMethod.DELETE)
-	public ResponseEntity<Boolean>  deleteByemployeeId(@PathVariable  String query) {
+	public ResponseEntity<Object>  deleteByemployeeId(@PathVariable  String query) {
 		int employeeId = Integer.parseInt(query);
 		System.out.println(employeeId);
 		long rowsEffected = EmployeeInterface.deleteByemployeeId(employeeId);
 		System.out.println(rowsEffected);
-		return null;
+		if(rowsEffected!=0) {
+			return  ResponseEntity.status(HttpStatus.OK).body(rowsEffected);
+		}
+		else {
+			return ResponseEntity.status(HttpStatus.NOT_IMPLEMENTED).body("Deletion Failed");
+		}
 		
 	
 		
